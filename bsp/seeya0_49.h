@@ -12,6 +12,7 @@
 #define OLED_PWR_EN      (12)
 
 #define OLEDA_I2C_SLAVE_ADDR (0x4C)
+#define OLEDB_I2C_SLAVE_ADDR (0x4D)
 
 void seeya_oled_power_on_sequence(void);
 

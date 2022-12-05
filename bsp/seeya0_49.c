@@ -47,7 +47,7 @@ void
 seeya_oleda_reset(void)
 {
     nrf_gpio_pin_write(OLEDA_RESET_PIN, 0);
-    nrf_delay_ms(2);
+    nrf_delay_ms(1000);
     nrf_gpio_pin_write(OLEDA_RESET_PIN, 1);
 }
 
@@ -55,9 +55,8 @@ void
 seeya_oledb_reset(void)
 {
     nrf_gpio_pin_write(OLEDB_RESET_PIN, 0);
-    nrf_delay_ms(100);
+    nrf_delay_ms(1000);
     nrf_gpio_pin_write(OLEDB_RESET_PIN, 1);
-    nrf_delay_ms(100);
 }
 
 uint32_t 
@@ -90,8 +89,8 @@ seeya_i2c_init(void)
     ret_code_t err_code;
     const nrfx_twi_config_t config = 
     {
-        .scl                = OLED_I2C_SDA_PIN,
-        .sda                = OLED_I2C_SCL_PIN,
+        .scl                = OLED_I2C_SCL_PIN,
+        .sda                = OLED_I2C_SDA_PIN,
         .frequency          = NRF_TWI_FREQ_100K,
         .interrupt_priority = APP_IRQ_PRIORITY_HIGH,
         .hold_bus_uninit     = true
@@ -103,6 +102,7 @@ seeya_i2c_init(void)
     nrfx_twi_enable(&m_twi);
 }
 
+static uint8_t i2c_slave_addr = 0;
 void 
 seeya_write_reg(const uint16_t reg_addr,
                         const uint16_t data)
@@ -114,7 +114,7 @@ seeya_write_reg(const uint16_t reg_addr,
                             (data & 0xFF00) >> 8,
                             data & 0x00FF};
     
-    err_code = nrfx_twi_tx(&m_twi, OLEDA_I2C_SLAVE_ADDR, write_buf, 4, false);
+    err_code = nrfx_twi_tx(&m_twi, i2c_slave_addr, write_buf, 4, false);
     APP_ERROR_CHECK(err_code);
     
 }
@@ -126,17 +126,18 @@ seeya_read_reg(const uint16_t reg_addr,
     ret_code_t err_code;
     uint8_t send_data[2] = {(reg_addr & 0xFF00) >> 8, reg_addr & 0x00FF};
 
-    err_code = nrfx_twi_tx(&m_twi, OLEDA_I2C_SLAVE_ADDR, send_data, 2, false);
+    err_code = nrfx_twi_tx(&m_twi, i2c_slave_addr, send_data, 2, false);
     APP_ERROR_CHECK(err_code);
     
-    err_code = nrfx_twi_rx(&m_twi, OLEDA_I2C_SLAVE_ADDR, read_buf, 2);
+    err_code = nrfx_twi_rx(&m_twi, i2c_slave_addr, read_buf, 2);
     APP_ERROR_CHECK(err_code);
 }
 
 void 
-seeya_oled_reg_init(void)
+seeya_oled_reg_init(bool is_high_level)
 {
     // CMD1
+    
     seeya_write_reg(0x5300, 0x0029);
 
     seeya_write_reg(0x5100, 0x00FF);
@@ -216,36 +217,100 @@ seeya_oled_reg_init(void)
     seeya_write_reg(0xF921, 0x008B);
     seeya_write_reg(0xF922, 0x008F);
     seeya_write_reg(0xF923, 0x0093);
-    
-    seeya_write_reg(0xF000, 0x00AA);
-    seeya_write_reg(0xF001, 0x0011);
+    if(!is_high_level)
+    {
+        seeya_write_reg(0xF000, 0x00AA);
+        seeya_write_reg(0xF001, 0x0011);
 
-    seeya_write_reg(0xC000, 0x0000);
+        seeya_write_reg(0xC000, 0x0000);
+    }
+    else
+    {
+        seeya_write_reg(0xF000, 0x00AA);
+        seeya_write_reg(0xF001, 0x0013);
+
+        seeya_write_reg(0xC100, 0x0094);
+        seeya_write_reg(0xC101, 0x00A2);
+    }
 
     nrf_delay_ms(20);
     seeya_write_reg(0x1100, 0x0000);
     nrf_delay_ms(100);
     seeya_write_reg(0x2900, 0x0000);
     nrf_delay_ms(20);
-
-    seeya_write_reg(0xF000, 0x00AA);
-    seeya_write_reg(0xF001, 0x0011);
-
-    seeya_write_reg(0xC000, 0x00FF);
+//
+//    seeya_write_reg(0xF000, 0x00AA);
+//    seeya_write_reg(0xF001, 0x0011);
+//
+//    seeya_write_reg(0xC000, 0x00FF);
     
 }
+
+
+#define TWI_ADDRESSES   (127)
+void 
+detect_i2c_slave_devices(void)
+{
+    ret_code_t err_code;
+    uint8_t address;
+    uint8_t sample_data;
+    bool detected_device = false;
+
+    for (address = 1; address <= TWI_ADDRESSES; address++)
+    {
+        err_code = nrfx_twi_rx(&m_twi, address, &sample_data, sizeof(sample_data));
+        if (err_code == NRF_SUCCESS)
+        {
+            detected_device = true;
+            NRF_LOG_INFO("TWI device detected at address 0x%x.", address);
+        }
+        NRF_LOG_FLUSH();
+    }
+
+    if (!detected_device)
+    {
+        NRF_LOG_INFO("No device was found.");
+        NRF_LOG_FLUSH();
+    }
+}
+
+void 
+seeya_oled_reg_read_write_test()
+{
+    uint8_t data[2];
+    seeya_read_reg(0x2A01, data);
+    NRF_LOG_INFO("Before write, XS[7:0]: 0x%02x", data[1]);
+    seeya_write_reg(0x2A01, 0x0001);
+    seeya_read_reg(0x2A01, data);
+    NRF_LOG_INFO("After write, XS[7:0]: 0x%02x", data[1]);
+    NRF_LOG_FLUSH();
+}
+
 
 void
 seeya_oled_power_on_sequence(void)
 {
     seeya_io_init();
     seeya_i2c_init();
-
+    nrf_delay_ms(1000);
+    
     seeya_oled_power_enable();
-    nrf_delay_ms(10);
-    seeya_oleda_reset();
-    nrf_delay_ms(25);
+    nrf_delay_ms(1000);
+    
+//    seeya_oleda_reset();
+//    nrf_delay_ms(1000);
 
-    seeya_oled_reg_init();
+//    seeya_oledb_reset();
+//    nrf_delay_ms(1000);
+
+//    seeya_oled_reg_read_write_test();
+    i2c_slave_addr = OLEDA_I2C_SLAVE_ADDR;
+    NRF_LOG_INFO("############## Configure address 0x4C: #############");
+    seeya_oled_reg_init(false);
+    nrf_delay_ms(10);
+    i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
+    NRF_LOG_INFO("############## Configure address 0x4D: #############");
+    seeya_oled_reg_init(true);
+    NRF_LOG_FLUSH();
 }
 
