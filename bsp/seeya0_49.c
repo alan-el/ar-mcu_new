@@ -137,6 +137,7 @@ void
 seeya_oled_reg_init(bool is_high_level)
 {
 #ifdef USE_SEEYA_OLED
+#ifndef USE_SEEYA_NEW_CONFIG
     // CMD1
     seeya_write_reg(0x5300, 0x0029);
 
@@ -217,6 +218,89 @@ seeya_oled_reg_init(bool is_high_level)
     seeya_write_reg(0xF921, 0x008B);
     seeya_write_reg(0xF922, 0x008F);
     seeya_write_reg(0xF923, 0x0093);
+#else
+    //CMD1
+    seeya_write_reg(0x5300, 0x0029);
+
+    seeya_write_reg(0x5100, 0x00FF);
+    seeya_write_reg(0x5101, 0x0001);
+
+    seeya_write_reg(0x0300, 0x0000);
+
+    seeya_write_reg(0x8000, 0x0000);
+    seeya_write_reg(0x8001, 0x0040);
+    seeya_write_reg(0x8002, 0x00E0);
+    seeya_write_reg(0x8003, 0x000E);
+    seeya_write_reg(0x8004, 0x0000);
+    seeya_write_reg(0x8005, 0x0031);
+
+
+    seeya_write_reg(0x8100, 0x0003);
+    seeya_write_reg(0x8101, 0x0004);
+    seeya_write_reg(0x8102, 0x0000);
+    seeya_write_reg(0x8103, 0x0010);
+    seeya_write_reg(0x8104, 0x0000);
+    seeya_write_reg(0x8105, 0x0010);
+    seeya_write_reg(0x8106, 0x0000);
+
+    seeya_write_reg(0x8200, 0x0003);
+    seeya_write_reg(0x8201, 0x0004);
+    seeya_write_reg(0x8202, 0x0000);
+    seeya_write_reg(0x8203, 0x0010);
+    seeya_write_reg(0x8204, 0x0000);
+    seeya_write_reg(0x8205, 0x0010);
+    seeya_write_reg(0x8206, 0x0001);
+
+    seeya_write_reg(0x3500, 0x0000);
+    seeya_write_reg(0x2600, 0x0020);
+
+
+    seeya_write_reg(0xF000, 0x00AA);
+    seeya_write_reg(0xF001, 0x0011);
+
+    seeya_write_reg(0xC200, 0x0003);
+    seeya_write_reg(0xC201, 0x00FF);
+    seeya_write_reg(0xC202, 0x0003);
+    seeya_write_reg(0xC203, 0x00FF);
+    seeya_write_reg(0xC204, 0x0003);
+    seeya_write_reg(0xC205, 0x00FF);
+    seeya_write_reg(0xC206, 0x0003);
+    seeya_write_reg(0xC207, 0x00FF);
+
+    //CMD2,P0
+    seeya_write_reg(0xF000, 0x00AA);
+    seeya_write_reg(0xF001, 0x0012);
+
+    seeya_write_reg(0xBF00, 0x0037);
+    seeya_write_reg(0xBF01, 0x00A9);
+
+    //CMD3 P0
+    seeya_write_reg(0xFF00, 0x005A);
+    seeya_write_reg(0xFF01, 0x0080);
+
+    seeya_write_reg(0xF22F, 0x0001);
+
+    //CMD3 P1
+    seeya_write_reg(0xFF00, 0x005A);
+    seeya_write_reg(0xFF01, 0x0081);
+    seeya_write_reg(0xF205, 0x0022);
+    seeya_write_reg(0xF20A, 0x0000);
+
+    seeya_write_reg(0xF917, 0x005E);
+    seeya_write_reg(0xF918, 0x0062);
+    seeya_write_reg(0xF919, 0x0066);
+    seeya_write_reg(0xF91A, 0x006A);
+    seeya_write_reg(0xF91B, 0x006F);
+    seeya_write_reg(0xF91C, 0x0073);
+    seeya_write_reg(0xF91D, 0x0077);
+    seeya_write_reg(0xF91E, 0x007B);
+    seeya_write_reg(0xF91F, 0x007F);
+    seeya_write_reg(0xF920, 0x0084);
+    seeya_write_reg(0xF921, 0x0088);
+    seeya_write_reg(0xF922, 0x008C);
+    seeya_write_reg(0xF923, 0x0090);
+
+#endif
     /* Pin[RL_SEL] = 0, I2C Slave address = 0x4C */
     if(!is_high_level)	
     {
@@ -228,11 +312,39 @@ seeya_oled_reg_init(bool is_high_level)
     /* Pin[RL_SEL] = 1, I2C Slave address = 0x4D */
     else
     {
+        /* Original */
         seeya_write_reg(0xF000, 0x00AA);
         seeya_write_reg(0xF001, 0x0013);
 
         seeya_write_reg(0xC100, 0x0094);
         seeya_write_reg(0xC101, 0x00A2);
+
+        /* Rotate 180 degree */
+//        seeya_write_reg(0x3600, 0x0003);
+//        
+//        seeya_write_reg(0xF000, 0x00AA);
+//        seeya_write_reg(0xF000, 0x0013);
+//        seeya_write_reg(0x6500, 0x0001);
+//        seeya_write_reg(0xC100, 0x0022);
+//        seeya_write_reg(0x6500, 0x0006);
+//        seeya_write_reg(0xC400, 0x0031);
+//        seeya_write_reg(0xC401, 0x0042);
+//        seeya_write_reg(0xC402, 0x0056);
+//        seeya_write_reg(0xC403, 0x0012);
+//        seeya_write_reg(0xC404, 0x0053);
+//        seeya_write_reg(0xC405, 0x0064);
+//        
+//        seeya_write_reg(0xF000, 0x00AA);
+//        seeya_write_reg(0xF001, 0x0016);
+//        seeya_write_reg(0x6500, 0x0006);
+//        seeya_write_reg(0xB600, 0x0031);
+//        seeya_write_reg(0xB601, 0x0042);
+//        seeya_write_reg(0xB602, 0x0056);
+//        seeya_write_reg(0xB603, 0x0012);
+//        seeya_write_reg(0xB604, 0x0053);
+//        seeya_write_reg(0xB605, 0x0064);
+//        seeya_write_reg(0xB000, 0x0000);
+//        seeya_write_reg(0xB001, 0x0044);
     }
 
     nrf_delay_ms(20);
@@ -308,7 +420,7 @@ seeya_oled_reg_init(bool is_high_level)
         seeya_write_reg(0xF000, 0x00AA);
         seeya_write_reg(0xF001, 0x0013);
         seeya_write_reg(0x6500, 0x0001);
-        seeya_write_reg(0xC100, 0x0022);
+        seeya_write_reg(0xC101, 0x0022);
         seeya_write_reg(0xC400, 0x0031);
         seeya_write_reg(0xC401, 0x0042);
         seeya_write_reg(0xC402, 0x0056);
@@ -329,10 +441,11 @@ seeya_oled_reg_init(bool is_high_level)
     /* Pin[RL_SEL] = 1, I2C Slave address = 0x4D */
     else
     {
-        seeya_write_reg(0x3600, 0x0003);
+        seeya_write_reg(0x3600, 0x0000);
         seeya_write_reg(0xF000, 0x00AA);
         seeya_write_reg(0xF001, 0x0013);
-        seeya_write_reg(0x6500, 0x0006);
+        seeya_write_reg(0x6500, 0x0001);
+        seeya_write_reg(0xC101, 0x00A2);
         seeya_write_reg(0xC400, 0x0031);
         seeya_write_reg(0xC401, 0x0042);
         seeya_write_reg(0xC402, 0x0056);
@@ -341,15 +454,14 @@ seeya_oled_reg_init(bool is_high_level)
         seeya_write_reg(0xC405, 0x0064);
         seeya_write_reg(0xF000, 0x00AA);
         seeya_write_reg(0xF001, 0x0016);
-        seeya_write_reg(0x6500, 0x0006);
-        seeya_write_reg(0xB600, 0x0031);
-        seeya_write_reg(0xB601, 0x0042);
-        seeya_write_reg(0xB602, 0x0056);
-        seeya_write_reg(0xB603, 0x0012);
-        seeya_write_reg(0xB604, 0x0053);
-        seeya_write_reg(0xB605, 0x0064);
+        seeya_write_reg(0xB600, 0x0012);
+        seeya_write_reg(0xB601, 0x0053);
+        seeya_write_reg(0xB602, 0x0064);
+        seeya_write_reg(0xB603, 0x0031);
+        seeya_write_reg(0xB604, 0x0042);
+        seeya_write_reg(0xB605, 0x0056);
         seeya_write_reg(0xB000, 0x0000);
-        seeya_write_reg(0xB001, 0x0044);
+        seeya_write_reg(0xB001, 0x0055);
     }
     
     seeya_write_reg(0x1100, 0x0000);
