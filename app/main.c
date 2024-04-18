@@ -429,7 +429,7 @@ int main(void)
     sd_power_dcdc_mode_set(NRF_POWER_DCDC_ENABLE);
 
     seeya_oled_power_on_sequence();
-//    i2c_comm_slave_init();
+    i2c_comm_slave_init();
 
     // Start execution.
     NRF_LOG_INFO("AR application started.");

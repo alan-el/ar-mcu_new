@@ -5,6 +5,7 @@
 #include "nrf_log_default_backends.h"
 
 #include "i2c_comm_slave.h"
+#include "seeya0_49.h"
 
 #define TWIS_INSTANCE_ID 1
 #define I2C_COMM_SLAVE_ADDR 0x27
@@ -80,7 +81,7 @@ void i2c_comm_slave_read_begin(void)
     {
         i2c_comm_msg_t msg = 
         {
-            .start_code = I2C_COMM_MSG_START_CODE,
+            .start_code = I2C_COMM_MSG_START_CODE_R,
             .cmd_type = event
         };
 
@@ -108,10 +109,29 @@ void i2c_comm_slave_write_begin(void)
 
 void i2c_comm_slave_write_end(uint32_t count)
 {
-    NRF_LOG_INFO("i2c_comm_slave: receive %d byte(s):", count);
-    
-    for(int i = 0; i < count; i++)
-        NRF_LOG_INFO("i2c_comm_slave: 0x%02x", write_data[i]);
+    if (count != 2)
+    {
+        NRF_LOG_INFO("Error: Recive i2c msg bytes num error: %d\n", count);
+    }
+    else if (write_data[0] != I2C_COMM_MSG_START_CODE_W)
+    {
+        NRF_LOG_INFO("Error: Recive i2c msg start code error: %d\n", write_data[0]);
+    }
+    else
+    {
+        switch (write_data[1])
+        {
+        case CMD_OLED_SLEEP:
+            seeya_oled_sleep();
+            break;
+        case CMD_OLED_WAKE_UP:
+            seeya_oled_wake_up();
+            break;
+        default:
+            break;
+        }
+        NRF_LOG_INFO("Recive i2c msg : %d\n", write_data[1]);
+    }
 }
 
 /* TODO */

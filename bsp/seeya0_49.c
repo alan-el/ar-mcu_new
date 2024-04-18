@@ -470,6 +470,35 @@ seeya_oled_reg_init(bool is_high_level)
 #endif
 }
 
+/* Enter sleep */
+void seeya_oled_sleep(void)
+{
+    i2c_slave_addr = OLEDA_I2C_SLAVE_ADDR;
+    seeya_write_reg(0x2800, 0x0000);
+    nrf_delay_ms(20);
+    seeya_write_reg(0x1000, 0x0000);
+    
+    nrf_delay_ms(10);
+    i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
+    seeya_write_reg(0x2800, 0x0000);
+    nrf_delay_ms(20);
+    seeya_write_reg(0x1000, 0x0000);
+}
+
+/* Wake up */
+void seeya_oled_wake_up(void)
+{
+    i2c_slave_addr = OLEDA_I2C_SLAVE_ADDR;
+    seeya_write_reg(0x1100, 0x0000);
+    nrf_delay_ms(20);
+    seeya_write_reg(0x2900, 0x0000);
+    
+    nrf_delay_ms(10);
+    i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
+    seeya_write_reg(0x1100, 0x0000);
+    nrf_delay_ms(20);
+    seeya_write_reg(0x2900, 0x0000);
+}
 
 #define TWI_ADDRESSES   (127)
 void 
