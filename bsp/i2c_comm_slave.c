@@ -12,7 +12,6 @@
 #define I2C_COMM_SLAVE_SCL  13
 #define I2C_COMM_SLAVE_SDA  14
 
-#define WRITE_BUF_MAX_LEN   32
 #define EVENT_READ_QUEUE_MAX_LEN  5
 
 static const nrfx_twis_t m_twis = NRFX_TWIS_INSTANCE(TWIS_INSTANCE_ID);
@@ -20,16 +19,15 @@ static const nrfx_twis_t m_twis = NRFX_TWIS_INSTANCE(TWIS_INSTANCE_ID);
 static bool m_error_flag = false;
 
 uint8_t read_buf[EVENT_READ_QUEUE_MAX_LEN * I2C_COMM_MSG_LEN];
-uint8_t write_data[WRITE_BUF_MAX_LEN];
+i2c_comm_msg_t write_data;
 
-/* 主机读取事件队列 TODO 待测试*/
-uint8_t event_read_queue[EVENT_READ_QUEUE_MAX_LEN];
-uint8_t *erq_head = event_read_queue;
-uint8_t *erq_rear = event_read_queue;
+i2c_comm_msg_t event_read_queue[EVENT_READ_QUEUE_MAX_LEN];
+i2c_comm_msg_t *erq_head = event_read_queue;
+i2c_comm_msg_t *erq_rear = event_read_queue;
 bool is_queue_empty = true;
 
 /* 进队 */
-int32_t i2c_comm_event_read_queue_in(uint8_t event)
+int32_t i2c_comm_event_read_queue_in(i2c_comm_msg_t msg)
 {
     if(!is_queue_empty && erq_head == erq_rear)
     {
@@ -38,7 +36,7 @@ int32_t i2c_comm_event_read_queue_in(uint8_t event)
     }
     else
     {
-        *erq_rear = event;
+        *erq_rear = msg;
         erq_rear == (event_read_queue + EVENT_READ_QUEUE_MAX_LEN - 1) ? \
         erq_rear = event_read_queue : \
         erq_rear++;
@@ -49,16 +47,16 @@ int32_t i2c_comm_event_read_queue_in(uint8_t event)
 }
 
 /* 出队 */
-int32_t i2c_comm_event_read_queue_out(uint8_t *pevent)
+int32_t i2c_comm_event_read_queue_out(i2c_comm_msg_t *pmsg)
 {
     if(is_queue_empty)
     {
-        NRF_LOG_INFO("i2c_comm_event_read_queue_in: queue is empty!");
+        NRF_LOG_INFO("i2c_comm_event_read_queue_out: queue is empty!");
         return -1;
     }
     else
     {
-        *pevent = *erq_head;
+        *pmsg = *erq_head;
         erq_head == (event_read_queue + EVENT_READ_QUEUE_MAX_LEN - 1) ? \
         erq_head = event_read_queue : \
         erq_head++;
@@ -74,24 +72,17 @@ void i2c_comm_slave_read_begin(void)
 {
     ret_code_t ret;
     uint8_t *pread_buf = read_buf;
-    int event_num = 0;
-    uint8_t event;
+    int msg_num = 0;
+    i2c_comm_msg_t msg;
     
-    while(0 == i2c_comm_event_read_queue_out(&event))
+    while(0 == i2c_comm_event_read_queue_out(&msg))
     {
-        i2c_comm_msg_t msg = 
-        {
-            .start_code = I2C_COMM_MSG_START_CODE_R,
-            .cmd_type = event
-        };
-
-        memcpy(pread_buf, (uint8_t *)&msg, I2C_COMM_MSG_LEN);
-        
-        pread_buf += I2C_COMM_MSG_LEN;
-        event_num++;
+        memcpy(pread_buf, (uint8_t *)&msg, sizeof(i2c_comm_msg_t));
+        pread_buf += sizeof(i2c_comm_msg_t);
+        msg_num++;
     }
     
-    ret = nrfx_twis_tx_prepare(&m_twis, read_buf, event_num * I2C_COMM_MSG_LEN);
+    ret = nrfx_twis_tx_prepare(&m_twis, read_buf, msg_num * sizeof(i2c_comm_msg_t));
     APP_ERROR_CHECK(ret);
 }
 
@@ -103,34 +94,48 @@ void i2c_comm_slave_read_end(uint32_t count)
 void i2c_comm_slave_write_begin(void)
 {
     ret_code_t ret;
-    ret = nrfx_twis_rx_prepare(&m_twis, write_data, sizeof(write_data));
+    ret = nrfx_twis_rx_prepare(&m_twis, &write_data, sizeof(i2c_comm_msg_t));
     APP_ERROR_CHECK(ret);
 }
 
 void i2c_comm_slave_write_end(uint32_t count)
 {
-    if (count != 2)
+    if (count < sizeof(i2c_comm_msg_t))
     {
         NRF_LOG_INFO("Error: Recive i2c msg bytes num error: %d\n", count);
     }
-    else if (write_data[0] != I2C_COMM_MSG_START_CODE_W)
+    else if (write_data.start_code != I2C_COMM_MSG_START_CODE_W)
     {
-        NRF_LOG_INFO("Error: Recive i2c msg start code error: %d\n", write_data[0]);
+        NRF_LOG_INFO("Error: Recive i2c msg start code error: %d\n", write_data.start_code);
     }
     else
     {
-        switch (write_data[1])
+        switch (write_data.cmd_type)
         {
         case CMD_OLED_SLEEP:
-            seeya_oled_sleep();
+            jdf_oled_sleep();
             break;
         case CMD_OLED_WAKE_UP:
-            seeya_oled_wake_up();
+            jdf_oled_wake_up();
+            break;
+        case CMD_OLED_SET_BRIGHTNESS:
+            /* data_len */
+            if (write_data.data_len != 1)
+            {
+                NRF_LOG_INFO("Error: CMD_OLED_SET_BRIGHTNESS data_len != 1\n");
+            }
+            /* data[0] */
+            jdf_oled_brightness_set(write_data.data[0]);
             break;
         default:
             break;
         }
-        NRF_LOG_INFO("Recive i2c msg : %d\n", write_data[1]);
+        
+        /* TODO: echo data to master for debug, need disable in release version */
+        write_data.start_code = I2C_COMM_MSG_START_CODE_R;
+        i2c_comm_event_read_queue_in(write_data);
+        
+        NRF_LOG_INFO("Recive i2c msg : %d\n", write_data.cmd_type);
     }
 }
 

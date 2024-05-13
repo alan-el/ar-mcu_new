@@ -469,35 +469,122 @@ seeya_oled_reg_init(bool is_high_level)
     seeya_write_reg(0x2900, 0x0000);
 #endif
 }
-
+/* Divide 1023 (0x3FF) into 100 levels, user can set brightness 
+ * between level 25 to level 100. 
+ */
+static int s_brightness_level = 100;
 /* Enter sleep */
-void seeya_oled_sleep(void)
+void jdf_oled_sleep(void)
 {
     i2c_slave_addr = OLEDA_I2C_SLAVE_ADDR;
-    seeya_write_reg(0x2800, 0x0000);
+    /* Set brightness to 0 */
+    jdf_oled_brightness_set(0);
+    
+    seeya_write_reg(0x2200, 0x0000); // Pixel off
+    seeya_write_reg(0x2800, 0x0000); // Screen off
     nrf_delay_ms(20);
-    seeya_write_reg(0x1000, 0x0000);
+    seeya_write_reg(0x1000, 0x0000); // Enter sleep    
     
     nrf_delay_ms(10);
     i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
+    jdf_oled_brightness_set(0);
+    
+    seeya_write_reg(0x2200, 0x0000);
     seeya_write_reg(0x2800, 0x0000);
     nrf_delay_ms(20);
     seeya_write_reg(0x1000, 0x0000);
 }
 
 /* Wake up */
-void seeya_oled_wake_up(void)
+void jdf_oled_wake_up(void)
 {
     i2c_slave_addr = OLEDA_I2C_SLAVE_ADDR;
-    seeya_write_reg(0x1100, 0x0000);
+    seeya_write_reg(0x1100, 0x0000); // Exit sleep
     nrf_delay_ms(20);
-    seeya_write_reg(0x2900, 0x0000);
+    seeya_write_reg(0x2900, 0x0000); // Screen on
+    seeya_write_reg(0x1300, 0x0000); // Pixel on
+    jdf_oled_brightness_set(s_brightness_level);
     
     nrf_delay_ms(10);
     i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
     seeya_write_reg(0x1100, 0x0000);
     nrf_delay_ms(20);
     seeya_write_reg(0x2900, 0x0000);
+    seeya_write_reg(0x1300, 0x0000);
+    jdf_oled_brightness_set(s_brightness_level);
+}
+
+void jdf_oled_brightness_set(int level)
+{
+    if (level < 25 || level > 100)
+    {
+        /* Error value */
+    }
+    else
+    {
+        s_brightness_level = level;
+        
+        uint16_t brightness_l = 0;
+        uint16_t brightness_h = 0;
+        
+        int brt_value = ((double)level / 100) * 0x3FF;
+        brightness_l = brt_value % 0x0100;
+        brightness_h = brt_value / 0x0100;
+        
+        NRF_LOG_INFO("brightness_l = 0x%x, brightness_h = 0x%x", brightness_l, brightness_h);
+        
+        i2c_slave_addr = OLEDA_I2C_SLAVE_ADDR;
+        seeya_write_reg(0xF000, 0x00AA);
+        seeya_write_reg(0xF001, 0x0011);
+        seeya_write_reg(0xC200, brightness_h);
+        seeya_write_reg(0xC201, brightness_l);
+        seeya_write_reg(0xC202, brightness_h);
+        seeya_write_reg(0xC203, brightness_l);
+        seeya_write_reg(0xC204, brightness_h);
+        seeya_write_reg(0xC205, brightness_l);
+        seeya_write_reg(0xC206, brightness_h);
+        seeya_write_reg(0xC207, brightness_l);
+        
+        nrf_delay_ms(10);
+        i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
+        seeya_write_reg(0xF000, 0x00AA);
+        seeya_write_reg(0xF001, 0x0011);
+        seeya_write_reg(0xC200, brightness_h);
+        seeya_write_reg(0xC201, brightness_l);
+        seeya_write_reg(0xC202, brightness_h);
+        seeya_write_reg(0xC203, brightness_l);
+        seeya_write_reg(0xC204, brightness_h);
+        seeya_write_reg(0xC205, brightness_l);
+        seeya_write_reg(0xC206, brightness_h);
+        seeya_write_reg(0xC207, brightness_l);
+    }
+}
+
+void jdf_oled_check_brightness(void)
+{
+    seeya_write_reg(0xF000, 0x00AA);
+    seeya_write_reg(0xF001, 0x0011);
+    
+    uint8_t data[2];
+    seeya_read_reg(0xC200, data);
+    NRF_LOG_INFO("0xC200 = 0x%x", data[1]);
+    seeya_read_reg(0xC201, data);
+    NRF_LOG_INFO("0xC201 = 0x%x", data[1]);
+    seeya_read_reg(0xC202, data);
+    NRF_LOG_INFO("0xC202 = 0x%x", data[1]);
+    seeya_read_reg(0xC203, data);
+    NRF_LOG_INFO("0xC203 = 0x%x", data[1]);
+    seeya_read_reg(0xC204, data);
+    NRF_LOG_INFO("0xC204 = 0x%x", data[1]);
+    seeya_read_reg(0xC205, data);
+    NRF_LOG_INFO("0xC205 = 0x%x", data[1]);
+    seeya_read_reg(0xC206, data);
+    NRF_LOG_INFO("0xC206 = 0x%x", data[1]);
+    seeya_read_reg(0xC207, data);
+    NRF_LOG_INFO("0xC207 = 0x%x", data[1]);
+    seeya_read_reg(0xC208, data);
+    NRF_LOG_INFO("0xC208 = 0x%x", data[1]);
+    nrf_delay_ms(200);
 }
 
 #define TWI_ADDRESSES   (127)
@@ -564,6 +651,7 @@ seeya_oled_power_on_sequence(void)
     i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
     NRF_LOG_INFO("############## Configure address 0x4D: #############");
     seeya_oled_reg_init(true);
+    
     NRF_LOG_FLUSH();
 }
 

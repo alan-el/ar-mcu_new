@@ -15,6 +15,7 @@
 #define OLEDB_I2C_SLAVE_ADDR (0x4D)
 
 void seeya_oled_power_on_sequence(void);
-void seeya_oled_sleep(void);
-void seeya_oled_wake_up(void);
+void jdf_oled_sleep(void);
+void jdf_oled_wake_up(void);
+void jdf_oled_brightness_set(int value);
 #endif
