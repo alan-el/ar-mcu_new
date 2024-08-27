@@ -10,7 +10,7 @@
       <TargetName>nrf52832_xxaa</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -185,6 +185,8 @@
             <uocXRam>0</uocXRam>
             <RvdsVP>2</RvdsVP>
             <RvdsMve>0</RvdsMve>
+            <RvdsCdeCp>0</RvdsCdeCp>
+            <nBranchProt>0</nBranchProt>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -312,7 +314,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -327,16 +329,16 @@
             <uC99>1</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
-            <v6Lang>0</v6Lang>
-            <v6LangP>0</v6LangP>
-            <vShortEn>0</vShortEn>
-            <vShortWch>0</vShortWch>
+            <v6Lang>3</v6Lang>
+            <v6LangP>3</v6LangP>
+            <vShortEn>1</vShortEn>
+            <vShortWch>1</vShortWch>
             <v6Lto>0</v6Lto>
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--reduce_paths</MiscControls>
-              <Define>DEBUG SEPARATED_TYPE CONFIG_NFCT_PINS_AS_GPIOS APP_TIMER_V2 APP_TIMER_V2_RTC1_ENABLED BLE_STACK_SUPPORT_REQD BOARD_PCA10040 CONFIG_GPIO_AS_PINRESET FLOAT_ABI_HARD MBEDTLS_CONFIG_FILE=&lt;nrf_crypto_mbedtls_config.h&gt; NRF52 NRF52832_XXAA NRF52_PAN_74 NRF_CRYPTO_MAX_INSTANCE_COUNT=1 NRF_SD_BLE_API_VERSION=7 S132 SOFTDEVICE_PRESENT __HEAP_SIZE=8192 __STACK_SIZE=8192</Define>
+              <Define>DEBUG SONY_OLED SEPARATED_TYPE CONFIG_NFCT_PINS_AS_GPIOS APP_TIMER_V2 APP_TIMER_V2_RTC1_ENABLED BLE_STACK_SUPPORT_REQD BOARD_PCA10040 CONFIG_GPIO_AS_PINRESET FLOAT_ABI_HARD MBEDTLS_CONFIG_FILE=&lt;nrf_crypto_mbedtls_config.h&gt; NRF52 NRF52832_XXAA NRF52_PAN_74 NRF_CRYPTO_MAX_INSTANCE_COUNT=1 NRF_SD_BLE_API_VERSION=7 S132 SOFTDEVICE_PRESENT __HEAP_SIZE=8192 __STACK_SIZE=8192</Define>
               <Undefine></Undefine>
               <IncludePath>..\app;..\ble_srv;..\bsp;..\config;..\nrf_ble\ble_db_discovery;..\nrf_ble\common;..\nrf_ble\nrf_ble_gatt;..\nrf_ble\nrf_ble_gq;..\nrf_ble\nrf_ble_scan;..\nrf_ble\peer_manager;..\nrf_drv;..\nrf_drv\legacy;..\nrf_drv\nrfx;..\nrf_drv\nrfx\drivers\include;..\nrf_drv\nrfx\hal;..\nrf_drv\nrfx\soc;..\nrf_lib\atomic;..\nrf_lib\atomic_fifo;..\nrf_lib\atomic_flags;..\nrf_lib\balloc;..\nrf_lib\button;..\nrf_lib\delay;..\nrf_lib\experimental_section_vars;..\nrf_lib\fds;..\nrf_lib\fifo;..\nrf_lib\fprintf;..\nrf_lib\fstorage;..\nrf_lib\hardfault;..\nrf_lib\mem_manager;..\nrf_lib\memobj;..\nrf_lib\mutex;..\nrf_lib\pwr_mgmt;..\nrf_lib\queue;..\nrf_lib\ringbuf;..\nrf_lib\scheduler;..\nrf_lib\sortlist;..\nrf_lib\strerror;..\nrf_lib\timer;..\nrf_lib\uart;..\nrf_lib\util;..\nrf_log;..\nrf_log\src;..\nrf_sfd\common;..\nrf_sfd\s132\headers;..\nrf_sfd\s132\headers\nrf52;..\segger_rtt</IncludePath>
             </VariousControls>
@@ -351,7 +353,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <uClangAs>0</uClangAs>
+            <ClangAsOpt>4</ClangAsOpt>
             <VariousControls>
               <MiscControls> --cpreproc_opts=-DAPP_TIMER_V2,-DAPP_TIMER_V2_RTC1_ENABLED,-DBLE_STACK_SUPPORT_REQD,-DBOARD_PCA10040,-DCONFIG_GPIO_AS_PINRESET,-DFLOAT_ABI_HARD,-DNRF52,-DNRF52832_XXAA,-DNRF52_PAN_74,-DNRF_CRYPTO_MAX_INSTANCE_COUNT=1,-DNRF_SD_BLE_API_VERSION=7,-DS132,-DSOFTDEVICE_PRESENT,-D__HEAP_SIZE=8192,-D__STACK_SIZE=8192</MiscControls>
               <Define>APP_TIMER_V2 APP_TIMER_V2_RTC1_ENABLED BLE_STACK_SUPPORT_REQD BOARD_PCA10040 CONFIG_GPIO_AS_PINRESET FLOAT_ABI_HARD NRF52 NRF52832_XXAA NRF52_PAN_74 NRF_CRYPTO_MAX_INSTANCE_COUNT=1 NRF_SD_BLE_API_VERSION=7 S132 SOFTDEVICE_PRESENT __HEAP_SIZE=8192 __STACK_SIZE=8192</Define>
@@ -416,6 +418,11 @@
               <FileName>lt7911.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\bsp\lt7911.c</FilePath>
+            </File>
+            <File>
+              <FileName>sony_ecx348ena.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\bsp\sony_ecx348ena.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -621,6 +628,11 @@
               <FileType>1</FileType>
               <FilePath>..\nrf_drv\nrfx\drivers\src\nrfx_twis.c</FilePath>
             </File>
+            <File>
+              <FileName>nrfx_spim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\nrf_drv\nrfx\drivers\src\nrfx_spim.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -899,7 +911,7 @@
                 <NoWarn>2</NoWarn>
                 <uSurpInc>2</uSurpInc>
                 <useXO>2</useXO>
-                <uClangAs>2</uClangAs>
+                <ClangAsOpt>0</ClangAsOpt>
                 <VariousControls>
                   <MiscControls></MiscControls>
                   <Define></Define>
@@ -1094,6 +1106,8 @@
             <uocXRam>0</uocXRam>
             <RvdsVP>2</RvdsVP>
             <RvdsMve>0</RvdsMve>
+            <RvdsCdeCp>0</RvdsCdeCp>
+            <nBranchProt>0</nBranchProt>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -1260,7 +1274,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <uClangAs>0</uClangAs>
+            <ClangAsOpt>4</ClangAsOpt>
             <VariousControls>
               <MiscControls> --cpreproc_opts=-D__HEAP_SIZE=8192,-D__STACK_SIZE=8192</MiscControls>
               <Define> __HEAP_SIZE=8192 __STACK_SIZE=8192</Define>
@@ -1325,6 +1339,11 @@
               <FileName>lt7911.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\bsp\lt7911.c</FilePath>
+            </File>
+            <File>
+              <FileName>sony_ecx348ena.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\bsp\sony_ecx348ena.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1478,6 +1497,11 @@
               <FileName>nrfx_twis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\nrf_drv\nrfx\drivers\src\nrfx_twis.c</FilePath>
+            </File>
+            <File>
+              <FileName>nrfx_spim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\nrf_drv\nrfx\drivers\src\nrfx_spim.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1757,7 +1781,7 @@
                 <NoWarn>2</NoWarn>
                 <uSurpInc>2</uSurpInc>
                 <useXO>2</useXO>
-                <uClangAs>2</uClangAs>
+                <ClangAsOpt>0</ClangAsOpt>
                 <VariousControls>
                   <MiscControls></MiscControls>
                   <Define></Define>
@@ -1829,7 +1853,7 @@
                 <NoWarn>2</NoWarn>
                 <uSurpInc>2</uSurpInc>
                 <useXO>2</useXO>
-                <uClangAs>2</uClangAs>
+                <ClangAsOpt>0</ClangAsOpt>
                 <VariousControls>
                   <MiscControls></MiscControls>
                   <Define></Define>
@@ -1849,12 +1873,12 @@
       <filter>
         <targetInfos/>
       </filter>
-      <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.7.0">
+      <package name="CMSIS" vendor="ARM">
         <targetInfos>
           <targetInfo name="nrf52832_xxaa"/>
         </targetInfos>
       </package>
-      <package license="License/license.txt" name="nRF_DeviceFamilyPack" schemaVersion="1.3" url="http://developer.nordicsemi.com/nRF5_SDK/pieces/nRF_DeviceFamilyPack/" vendor="NordicSemiconductor" version="8.38.0">
+      <package name="nRF_DeviceFamilyPack" vendor="NordicSemiconductor">
         <targetInfos>
           <targetInfo name="nrf52832_xxaa"/>
         </targetInfos>
@@ -1862,17 +1886,17 @@
     </packages>
     <apis/>
     <components>
-      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.4.0" condition="ARMv6_7_8-M Device">
-        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.7.0"/>
+      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.6.0" condition="ARMv6_7_8-M Device">
+        <package name="CMSIS" schemaVersion="1.7.7" url="http://www.keil.com/pack/" vendor="ARM" version="5.9.0"/>
         <targetInfos>
           <targetInfo name="flash_s132_nrf52_7.2.0_softdevice"/>
           <targetInfo name="nrf52832_xxaa"/>
         </targetInfos>
       </component>
-      <component Cclass="Device" Cgroup="Startup" Cvendor="NordicSemiconductor" Cversion="8.38.0" condition="nRF52832 Device and CMSIS">
-        <package license="License/license.txt" name="nRF_DeviceFamilyPack" schemaVersion="1.3" url="http://developer.nordicsemi.com/nRF5_SDK/pieces/nRF_DeviceFamilyPack/" vendor="NordicSemiconductor" version="8.38.0"/>
+      <component Cclass="Device" Cgroup="Startup" Cvendor="NordicSemiconductor" Cversion="8.44.1" condition="nRF52832 Device and CMSIS">
+        <package name="nRF_DeviceFamilyPack" schemaVersion="1.3" url="http://developer.nordicsemi.com/nRF5_SDK/pieces/nRF_DeviceFamilyPack/" vendor="NordicSemiconductor" version="8.44.1"/>
         <targetInfos>
-          <targetInfo excluded="1" name="flash_s132_nrf52_7.2.0_softdevice" versionMatchMode=""/>
+          <targetInfo excluded="1" name="flash_s132_nrf52_7.2.0_softdevice"/>
           <targetInfo name="nrf52832_xxaa"/>
         </targetInfos>
       </component>
@@ -1881,7 +1905,7 @@
       <file attr="config" category="source" condition="ARM Compiler" name="Device\Source\arm\arm_startup_nrf52.s" version="8.44.1">
         <instance index="0">RTE\Device\nRF52832_xxAA\arm_startup_nrf52.s</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="NordicSemiconductor" Cversion="8.44.1" condition="nRF52832 Device and CMSIS"/>
-        <package license="License/license.txt" name="nRF_DeviceFamilyPack" schemaVersion="1.3" url="http://developer.nordicsemi.com/nRF5_SDK/pieces/nRF_DeviceFamilyPack/" vendor="NordicSemiconductor" version="8.44.1"/>
+        <package name="nRF_DeviceFamilyPack" schemaVersion="1.3" url="http://developer.nordicsemi.com/nRF5_SDK/pieces/nRF_DeviceFamilyPack/" vendor="NordicSemiconductor" version="8.44.1"/>
         <targetInfos>
           <targetInfo excluded="1" name="flash_s132_nrf52_7.2.0_softdevice"/>
           <targetInfo name="nrf52832_xxaa"/>
@@ -1890,7 +1914,7 @@
       <file attr="config" category="source" name="Device\Source\system_nrf52.c" version="8.44.1">
         <instance index="0">RTE\Device\nRF52832_xxAA\system_nrf52.c</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="NordicSemiconductor" Cversion="8.44.1" condition="nRF52832 Device and CMSIS"/>
-        <package license="License/license.txt" name="nRF_DeviceFamilyPack" schemaVersion="1.3" url="http://developer.nordicsemi.com/nRF5_SDK/pieces/nRF_DeviceFamilyPack/" vendor="NordicSemiconductor" version="8.44.1"/>
+        <package name="nRF_DeviceFamilyPack" schemaVersion="1.3" url="http://developer.nordicsemi.com/nRF5_SDK/pieces/nRF_DeviceFamilyPack/" vendor="NordicSemiconductor" version="8.44.1"/>
         <targetInfos>
           <targetInfo excluded="1" name="flash_s132_nrf52_7.2.0_softdevice"/>
           <targetInfo name="nrf52832_xxaa"/>
@@ -1898,5 +1922,14 @@
       </file>
     </files>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>ar_mcu_new</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

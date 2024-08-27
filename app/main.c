@@ -77,6 +77,8 @@
 #include "i2c_comm_slave.h"
 #include "button.h"
 #include "seeya0_49.h"
+#include "sony_ecx348ena.h"
+#include "lt7911.h"
 
 #define APP_BLE_CONN_CFG_TAG        1                                   /**< A tag identifying the SoftDevice BLE configuration. */
 
@@ -427,8 +429,18 @@ int main(void)
     gatt_init();
     
     sd_power_dcdc_mode_set(NRF_POWER_DCDC_ENABLE);
-
+    
+    lt7911_io_init();
+    lt7911_reset();
+#ifdef SONY_OLED 
+    ecx348ena_io_init();
+    ecx348ena_power_on_and_reset();
+    ecx348ena_regs_init(OLED_ID_A);
+    ecx348ena_regs_init(OLED_ID_B);
+#else
     seeya_oled_power_on_sequence();
+#endif
+    
     i2c_comm_slave_init();
 
     // Start execution.

@@ -6,6 +6,8 @@
 
 #include "i2c_comm_slave.h"
 #include "seeya0_49.h"
+#include "lt7911.h"
+#include "sony_ecx348ena.h"
 
 #define TWIS_INSTANCE_ID 1
 #define I2C_COMM_SLAVE_ADDR 0x27
@@ -113,10 +115,19 @@ void i2c_comm_slave_write_end(uint32_t count)
         switch (write_data.cmd_type)
         {
         case CMD_OLED_SLEEP:
+            /* TODO implement sony oled functions */
+#ifdef SONY_OLED
+            ecx348ena_sleep();
+#else
             jdf_oled_sleep();
+#endif
             break;
         case CMD_OLED_WAKE_UP:
+#ifdef SONY_OLED
+            ecx348ena_wake_up();
+#else
             jdf_oled_wake_up();
+#endif
             break;
         case CMD_OLED_SET_BRIGHTNESS:
             /* data_len */
@@ -125,7 +136,15 @@ void i2c_comm_slave_write_end(uint32_t count)
                 NRF_LOG_INFO("Error: CMD_OLED_SET_BRIGHTNESS data_len != 1\n");
             }
             /* data[0] */
+#ifdef SONY_OLED
+            ecx348ena_brightness_set(write_data.data[0]);
+#else
             jdf_oled_brightness_set(write_data.data[0]);
+#endif
+            break;
+        case CMD_OLED_POWEROFF_LT7911:
+            lt7911_poweroff();
+            NRF_LOG_INFO("LT7911 poweroff!\n");
             break;
         default:
             break;

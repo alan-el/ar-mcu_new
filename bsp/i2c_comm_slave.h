@@ -20,6 +20,7 @@ typedef enum
     CMD_OLED_SLEEP = 0,
     CMD_OLED_WAKE_UP,
     CMD_OLED_SET_BRIGHTNESS,
+    CMD_OLED_POWEROFF_LT7911,
 } cmd_type_t;
 
 void i2c_comm_slave_init(void);
