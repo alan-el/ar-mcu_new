@@ -115,18 +115,17 @@ void i2c_comm_slave_write_end(uint32_t count)
         switch (write_data.cmd_type)
         {
         case CMD_OLED_SLEEP:
-            /* TODO implement sony oled functions */
 #ifdef SONY_OLED
             ecx348ena_sleep();
 #else
-            jdf_oled_sleep();
+            jdf_oled_sleep(write_data.data[0]);
 #endif
             break;
         case CMD_OLED_WAKE_UP:
 #ifdef SONY_OLED
             ecx348ena_wake_up();
 #else
-            jdf_oled_wake_up();
+            jdf_oled_wake_up(write_data.data[0]);
 #endif
             break;
         case CMD_OLED_SET_BRIGHTNESS:
@@ -146,13 +145,74 @@ void i2c_comm_slave_write_end(uint32_t count)
             lt7911_poweroff();
             NRF_LOG_INFO("LT7911 poweroff!\n");
             break;
+        case CMD_OLED_REG_CFG:
+        {
+            uint8_t start_addr, index, which;
+            uint16_t addr, reg_value;
+            
+            if (write_data.data_len < 2)
+            {
+                NRF_LOG_INFO("Error: CMD_OLED_REG_CFG data_len < 2\n");
+            }
+            else
+            {
+                which = write_data.data[0];
+                start_addr = write_data.data[1];
+//                NRF_LOG_INFO("which = %d\n", which);
+//                NRF_LOG_INFO("start_addr = %d\n", start_addr);
+                NRF_LOG_INFO("write_data.data_len = %d\n", write_data.data_len);
+                
+                if (which & 0x01)
+                {
+                    seeya_set_i2c_slave_addr(OLEDA_I2C_SLAVE_ADDR);
+                    
+                    if (write_data.data_len == 2)
+                    {
+                        addr = (uint16_t)start_addr << 8;
+                        seeya_write_reg(addr, 0x0000);
+                    }
+                    else
+                    {
+                        
+                        for (index = 2; index < write_data.data_len; index++)
+                        {
+                            addr = ((uint16_t)start_addr << 8) + (index - 2);
+                            reg_value = write_data.data[index];
+                            seeya_write_reg(addr, reg_value);
+
+                        }
+                    }
+                }
+                
+                if (which & 0x02)
+                {
+                    seeya_set_i2c_slave_addr(OLEDB_I2C_SLAVE_ADDR);
+                    
+                    if (write_data.data_len == 2)
+                    {
+                        addr = (uint16_t)start_addr << 8;
+                        seeya_write_reg(addr, 0x0000);
+                    }
+                    else
+                    {
+                        for (index = 2; index < write_data.data_len; index++)
+                        {
+                            addr = ((uint16_t)start_addr << 8) + (index - 2);
+                            reg_value = write_data.data[index];
+                            seeya_write_reg(addr, reg_value);
+                        }
+                    }
+                }
+            }
+        }
+            break;
         default:
             break;
         }
         
         /* TODO: echo data to master for debug, need disable in release version */
-        write_data.start_code = I2C_COMM_MSG_START_CODE_R;
-        i2c_comm_event_read_queue_in(write_data);
+//        write_data.start_code = I2C_COMM_MSG_START_CODE_R;
+//        i2c_comm_event_read_queue_in(write_data);
         
         NRF_LOG_INFO("Recive i2c msg : %d\n", write_data.cmd_type);
     }

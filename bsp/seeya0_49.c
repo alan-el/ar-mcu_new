@@ -97,12 +97,18 @@ seeya_i2c_init(void)
     };
     
     err_code = nrfx_twi_init(&m_twi, &config, NULL, NULL);
-    APP_ERROR_CHECK(err_code);
+//    APP_ERROR_CHECK(err_code);
     
     nrfx_twi_enable(&m_twi);
 }
 
 static uint8_t i2c_slave_addr = 0;
+
+void seeya_set_i2c_slave_addr(uint8_t addr)
+{
+    i2c_slave_addr = addr;
+}
+
 void 
 seeya_write_reg(const uint16_t reg_addr,
                         const uint16_t data)
@@ -115,7 +121,7 @@ seeya_write_reg(const uint16_t reg_addr,
                             data & 0x00FF};
     
     err_code = nrfx_twi_tx(&m_twi, i2c_slave_addr, write_buf, 4, false);
-    APP_ERROR_CHECK(err_code);
+//    APP_ERROR_CHECK(err_code);
     
 }
 
@@ -127,10 +133,10 @@ seeya_read_reg(const uint16_t reg_addr,
     uint8_t send_data[2] = {(reg_addr & 0xFF00) >> 8, reg_addr & 0x00FF};
 
     err_code = nrfx_twi_tx(&m_twi, i2c_slave_addr, send_data, 2, false);
-    APP_ERROR_CHECK(err_code);
+//    APP_ERROR_CHECK(err_code);
     
     err_code = nrfx_twi_rx(&m_twi, i2c_slave_addr, read_buf, 2);
-    APP_ERROR_CHECK(err_code);
+//    APP_ERROR_CHECK(err_code);
 }
 
 void 
@@ -474,44 +480,54 @@ seeya_oled_reg_init(bool is_high_level)
  */
 static int s_brightness_level = 100;
 /* Enter sleep */
-void jdf_oled_sleep(void)
+void jdf_oled_sleep(uint8_t which)
 {
-    i2c_slave_addr = OLEDA_I2C_SLAVE_ADDR;
-    /* Set brightness to 0 */
-    jdf_oled_brightness_set(0);
+    if (which & 0x01)
+    {
+        i2c_slave_addr = OLEDA_I2C_SLAVE_ADDR;
+        /* Set brightness to 0 */
+        jdf_oled_brightness_set(0);
+        seeya_write_reg(0x2200, 0x0000); // Pixel off
+        seeya_write_reg(0x2800, 0x0000); // Screen off
+        nrf_delay_ms(20);
+        seeya_write_reg(0x1000, 0x0000); // Enter sleep    
+        nrf_delay_ms(10);
+    }
     
-    seeya_write_reg(0x2200, 0x0000); // Pixel off
-    seeya_write_reg(0x2800, 0x0000); // Screen off
-    nrf_delay_ms(20);
-    seeya_write_reg(0x1000, 0x0000); // Enter sleep    
-    
-    nrf_delay_ms(10);
-    i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
-    jdf_oled_brightness_set(0);
-    
-    seeya_write_reg(0x2200, 0x0000);
-    seeya_write_reg(0x2800, 0x0000);
-    nrf_delay_ms(20);
-    seeya_write_reg(0x1000, 0x0000);
+    if (which & 0x02)
+    {
+        i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
+        jdf_oled_brightness_set(0);
+        seeya_write_reg(0x2200, 0x0000);
+        seeya_write_reg(0x2800, 0x0000);
+        nrf_delay_ms(20);
+        seeya_write_reg(0x1000, 0x0000);
+    }
 }
 
 /* Wake up */
-void jdf_oled_wake_up(void)
+void jdf_oled_wake_up(uint8_t which)
 {
-    i2c_slave_addr = OLEDA_I2C_SLAVE_ADDR;
-    seeya_write_reg(0x1100, 0x0000); // Exit sleep
-    nrf_delay_ms(20);
-    seeya_write_reg(0x2900, 0x0000); // Screen on
-    seeya_write_reg(0x1300, 0x0000); // Pixel on
-    jdf_oled_brightness_set(s_brightness_level);
+    if (which & 0x01)
+    {
+        i2c_slave_addr = OLEDA_I2C_SLAVE_ADDR;
+        seeya_write_reg(0x1100, 0x0000); // Exit sleep
+        nrf_delay_ms(20);
+        seeya_write_reg(0x2900, 0x0000); // Screen on
+        seeya_write_reg(0x1300, 0x0000); // Pixel on
+        jdf_oled_brightness_set(s_brightness_level);
+        nrf_delay_ms(10);
+    }
     
-    nrf_delay_ms(10);
-    i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
-    seeya_write_reg(0x1100, 0x0000);
-    nrf_delay_ms(20);
-    seeya_write_reg(0x2900, 0x0000);
-    seeya_write_reg(0x1300, 0x0000);
-    jdf_oled_brightness_set(s_brightness_level);
+    if (which & 0x02)
+    {
+        i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
+        seeya_write_reg(0x1100, 0x0000);
+        nrf_delay_ms(20);
+        seeya_write_reg(0x2900, 0x0000);
+        seeya_write_reg(0x1300, 0x0000);
+        jdf_oled_brightness_set(s_brightness_level);
+    }
 }
 
 void jdf_oled_brightness_set(int level)
