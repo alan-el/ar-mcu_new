@@ -422,6 +422,11 @@
               <FileType>1</FileType>
               <FilePath>..\bsp\sony_ecx348ena.c</FilePath>
             </File>
+            <File>
+              <FileName>sensor_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\bsp\sensor_control.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1340,6 +1345,11 @@
               <FileName>sony_ecx348ena.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\bsp\sony_ecx348ena.c</FilePath>
+            </File>
+            <File>
+              <FileName>sensor_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\bsp\sensor_control.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,4 +1,5 @@
 #include "nrfx_twis.h"
+#include "nrfx_twi.h"
 #include "nrf_error.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
@@ -8,8 +9,10 @@
 #include "seeya0_49.h"
 #include "lt7911.h"
 #include "sony_ecx348ena.h"
+#include "sensor_control.h"
 
 #define TWIS_INSTANCE_ID 1
+#define TWI0_INSTANCE_ID 0
 #define I2C_COMM_SLAVE_ADDR 0x27
 #define I2C_COMM_SLAVE_SCL  13
 #define I2C_COMM_SLAVE_SDA  14
@@ -17,6 +20,7 @@
 #define EVENT_READ_QUEUE_MAX_LEN  5
 
 static const nrfx_twis_t m_twis = NRFX_TWIS_INSTANCE(TWIS_INSTANCE_ID);
+//static const nrfx_twi_t m_twi0 = NRFX_TWI_INSTANCE(TWI0_INSTANCE_ID);
 
 static bool m_error_flag = false;
 
@@ -158,8 +162,8 @@ void i2c_comm_slave_write_end(uint32_t count)
             {
                 which = write_data.data[0];
                 start_addr = write_data.data[1];
-//                NRF_LOG_INFO("which = %d\n", which);
-//                NRF_LOG_INFO("start_addr = %d\n", start_addr);
+                NRF_LOG_INFO("which = %d\n", which);
+                NRF_LOG_INFO("start_addr = %d\n", start_addr);
                 NRF_LOG_INFO("write_data.data_len = %d\n", write_data.data_len);
                 
                 if (which & 0x01)
@@ -179,7 +183,6 @@ void i2c_comm_slave_write_end(uint32_t count)
                             addr = ((uint16_t)start_addr << 8) + (index - 2);
                             reg_value = write_data.data[index];
                             seeya_write_reg(addr, reg_value);
-
                         }
                     }
                 }
@@ -205,6 +208,24 @@ void i2c_comm_slave_write_end(uint32_t count)
                 }
             }
         }
+            break;
+        case CMD_SENSOR_MIPI_MUX_SWITCH:
+            if (write_data.data_len != 1)
+            {
+                NRF_LOG_INFO("Error: CMD_SENSOR_MIPI_MUX_SWITCH data_len != 1\n");
+            }
+            
+            if (write_data.data[0] == 0)
+            {
+                imx586_power_enable();
+                sensor_control_mipi_mux_to_imx586();
+            }
+            else if (write_data.data[0] == 1)
+            {
+                imx214_power_enable();
+                sensor_control_mipi_mux_to_imx214();
+            }
+            
             break;
         default:
             break;

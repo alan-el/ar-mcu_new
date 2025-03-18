@@ -79,6 +79,7 @@
 #include "seeya0_49.h"
 #include "sony_ecx348ena.h"
 #include "lt7911.h"
+#include "sensor_control.h"
 
 #define APP_BLE_CONN_CFG_TAG        1                                   /**< A tag identifying the SoftDevice BLE configuration. */
 
@@ -430,8 +431,11 @@ int main(void)
     
     sd_power_dcdc_mode_set(NRF_POWER_DCDC_ENABLE);
     
-    lt7911_io_init();
-    lt7911_reset();
+//    lt7911_io_init();
+//    lt7911_reset();
+    sensor_control_io_init();
+    imx586_power_enable();
+    sensor_control_mipi_mux_to_imx586();
 #ifdef SONY_OLED 
     ecx348ena_io_init();
     ecx348ena_power_on_and_reset();

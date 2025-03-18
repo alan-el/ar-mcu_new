@@ -22,6 +22,7 @@ typedef enum
     CMD_OLED_SET_BRIGHTNESS,
     CMD_OLED_POWEROFF_LT7911,
     CMD_OLED_REG_CFG,
+    CMD_SENSOR_MIPI_MUX_SWITCH,
 } cmd_type_t;
 
 void i2c_comm_slave_init(void);
