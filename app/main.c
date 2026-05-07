@@ -424,10 +424,10 @@ int main(void)
     //z = (int)&(((struct s*)0)->c);
     log_init();
     timer_init();
-    buttons_init();
-    power_management_init();
-    ble_stack_init();
-    gatt_init();
+//    buttons_init();
+//    power_management_init();
+//    ble_stack_init();
+//    gatt_init();
     
     sd_power_dcdc_mode_set(NRF_POWER_DCDC_ENABLE);
     

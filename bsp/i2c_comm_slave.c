@@ -23,9 +23,12 @@ static const nrfx_twis_t m_twis = NRFX_TWIS_INSTANCE(TWIS_INSTANCE_ID);
 //static const nrfx_twi_t m_twi0 = NRFX_TWI_INSTANCE(TWI0_INSTANCE_ID);
 
 static bool m_error_flag = false;
+static int16_t is_rebooted = 0xDEFF; // 0xDEAD
 
 uint8_t read_buf[EVENT_READ_QUEUE_MAX_LEN * I2C_COMM_MSG_LEN];
+static int read_cmd_id = 0;
 i2c_comm_msg_t write_data;
+uint8_t write_buf[256] = {0};
 
 i2c_comm_msg_t event_read_queue[EVENT_READ_QUEUE_MAX_LEN];
 i2c_comm_msg_t *erq_head = event_read_queue;
@@ -78,17 +81,35 @@ void i2c_comm_slave_read_begin(void)
 {
     ret_code_t ret;
     uint8_t *pread_buf = read_buf;
-    int msg_num = 0;
+//    int msg_num = 0;
     i2c_comm_msg_t msg;
+    msg.start_code = I2C_COMM_MSG_START_CODE_R;
+    msg.cmd_type = read_cmd_id;
     
-    while(0 == i2c_comm_event_read_queue_out(&msg))
+    switch (read_cmd_id)
     {
-        memcpy(pread_buf, (uint8_t *)&msg, sizeof(i2c_comm_msg_t));
-        pread_buf += sizeof(i2c_comm_msg_t);
-        msg_num++;
+    case CMD_GET_REBOOTED_STATE:
+        msg.data_len = 2;
+        msg.data[0] = (is_rebooted & 0xFF00) >> 8;
+        msg.data[1] = is_rebooted & 0x00FF;
+        break;
+    default:
+        msg.data_len = 2;
+        msg.data[0] = (is_rebooted & 0xFF00) >> 8;
+        msg.data[1] = is_rebooted & 0x00FF;
+        break;
     }
     
-    ret = nrfx_twis_tx_prepare(&m_twis, read_buf, msg_num * sizeof(i2c_comm_msg_t));
+    memcpy(pread_buf, (uint8_t *)&msg, sizeof(i2c_comm_msg_t));
+    
+//    while(0 == i2c_comm_event_read_queue_out(&msg))
+//    {
+//        memcpy(pread_buf, (uint8_t *)&msg, sizeof(i2c_comm_msg_t));
+//        pread_buf += sizeof(i2c_comm_msg_t);
+//        msg_num++;
+//    }
+    
+    ret = nrfx_twis_tx_prepare(&m_twis, read_buf, sizeof(i2c_comm_msg_t));
     APP_ERROR_CHECK(ret);
 }
 
@@ -222,10 +243,21 @@ void i2c_comm_slave_write_end(uint32_t count)
             }
             else if (write_data.data[0] == 1)
             {
-                imx214_power_enable();
+                imx576_power_enable();
                 sensor_control_mipi_mux_to_imx214();
             }
             
+            break;
+        case CMD_SET_REBOOTED_FALSE:
+            is_rebooted = 0xDEAD;
+            break;
+        case CMD_SET_READ_CMD_ID:
+            if (write_data.data_len != 1)
+            {
+                NRF_LOG_INFO("Error: CMD_SET_READ_CMD_ID data_len != 1\n");
+            }
+            
+            read_cmd_id = write_data.data[0];
             break;
         default:
             break;
@@ -271,6 +303,7 @@ static void twis_event_handler(nrfx_twis_evt_t const * const p_event)
     case NRFX_TWIS_EVT_WRITE_ERROR:
     case NRFX_TWIS_EVT_GENERAL_ERROR:
         m_error_flag = true;
+        NRF_LOG_INFO("Error : %d\n", p_event->data.error);
         i2c_comm_slave_trans_error_handle();
         break;
     default:

@@ -34,9 +34,9 @@ seeya_io_init(void)
     nrf_gpio_cfg_output(OLEDB_I2C_SWITCH);
     nrf_gpio_pin_write(OLEDB_I2C_SWITCH, 0);
     
-    nrf_gpio_cfg_input(OLEDA_OCP_OUT_PIN, NRF_GPIO_PIN_NOPULL);
+//    nrf_gpio_cfg_input(OLEDA_OCP_OUT_PIN, NRF_GPIO_PIN_NOPULL);
     nrf_gpio_cfg_input(OLEDA_GPIO_PIN, NRF_GPIO_PIN_NOPULL);
-    nrf_gpio_cfg_input(OLEDB_OCP_OUT_PIN, NRF_GPIO_PIN_NOPULL);
+//    nrf_gpio_cfg_input(OLEDB_OCP_OUT_PIN, NRF_GPIO_PIN_NOPULL);
     nrf_gpio_cfg_input(OLEDB_GPIO_PIN, NRF_GPIO_PIN_NOPULL);
 }
 
@@ -562,12 +562,13 @@ seeya_oled_reg_init(bool is_high_level)
 //        seeya_write_reg(0xB000, 0x0000);
 //        seeya_write_reg(0xB001, 0x0044);
     }
-
+/*
     nrf_delay_ms(20);
     seeya_write_reg(0x1100, 0x0000);
     nrf_delay_ms(100);
     seeya_write_reg(0x2900, 0x0000);
     nrf_delay_ms(20);
+*/
 }
 /* Divide 1023 (0x3FF) into 100 levels, user can set brightness 
  * between level 25 to level 100. 
@@ -741,10 +742,10 @@ seeya_oled_power_on_sequence(void)
 {
     seeya_io_init();
     seeya_i2c_init();
-    nrf_delay_ms(1000);
+    nrf_delay_ms(10);
     
     seeya_oled_power_enable();
-    nrf_delay_ms(1000);
+    nrf_delay_ms(100);
     
 //    seeya_oleda_reset();
 //    nrf_delay_ms(1000);
@@ -759,6 +760,7 @@ seeya_oled_power_on_sequence(void)
     seeya_oled_reg_init(false);
 #else
     jdf_oled_reg_init(false);
+    jdf_oled_sleep(0x01);
 #endif
     nrf_delay_ms(10);
     i2c_slave_addr = OLEDB_I2C_SLAVE_ADDR;
@@ -767,6 +769,7 @@ seeya_oled_power_on_sequence(void)
     seeya_oled_reg_init(true);
 #else
     jdf_oled_reg_init(true);
+    jdf_oled_sleep(0x02);
 #endif
     
     NRF_LOG_FLUSH();

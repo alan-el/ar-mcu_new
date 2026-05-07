@@ -9,38 +9,67 @@
 
 void sensor_control_io_init(void)
 {
-    nrf_gpio_cfg_output(IMX214_PWREN_PIN);
-    nrf_gpio_pin_write(IMX214_PWREN_PIN, 0);
+    nrf_gpio_cfg_output(IMX576_PWREN_PIN);
+    nrf_gpio_pin_write(IMX576_PWREN_PIN, 0);
+    nrf_gpio_cfg_output(IMX576_RESET_PIN);
+    nrf_gpio_pin_write(IMX576_RESET_PIN, 1);
     nrf_gpio_cfg_output(IMX586_PWREN_PIN);
     nrf_gpio_pin_write(IMX586_PWREN_PIN, 0);
+    nrf_gpio_cfg_output(IMX586_RESET_PIN);
+    nrf_gpio_pin_write(IMX586_RESET_PIN, 1);
     nrf_gpio_cfg_output(SENSOR_MIPI_MUX_PIN);
     nrf_gpio_pin_write(SENSOR_MIPI_MUX_PIN, 0);
+    
+//    nrf_gpio_cfg_output(TEST_JUMPER_WIRES_PIN);
+//    nrf_gpio_pin_write(TEST_JUMPER_WIRES_PIN, 0);
 }
 
-void imx214_power_enable(void)
+void imx576_power_enable(void)
 {
     imx586_power_disable();
-    nrf_gpio_pin_write(IMX214_PWREN_PIN, 0);
+    nrf_gpio_pin_write(IMX576_PWREN_PIN, 0);
     nrf_delay_ms(10);
-    nrf_gpio_pin_write(IMX214_PWREN_PIN, 1);
+    nrf_gpio_pin_write(IMX576_PWREN_PIN, 1);
+    // For imx576 case
+    nrf_gpio_pin_write(IMX576_RESET_PIN, 0);
+    nrf_delay_ms(50);
+    nrf_gpio_pin_write(IMX576_RESET_PIN, 1);
 }
 
-void imx214_power_disable(void)
+void imx576_power_disable(void)
 {
-    nrf_gpio_pin_write(IMX214_PWREN_PIN, 0);
+    nrf_gpio_pin_write(IMX576_PWREN_PIN, 0);
+    nrf_gpio_pin_write(IMX576_RESET_PIN, 0);
 }
 
 void imx586_power_enable(void)
 {
-    imx214_power_disable();
+    imx576_power_disable();
     nrf_gpio_pin_write(IMX586_PWREN_PIN, 0);
     nrf_delay_ms(10);
     nrf_gpio_pin_write(IMX586_PWREN_PIN, 1);
+    nrf_gpio_pin_write(IMX586_RESET_PIN, 0);
+    nrf_delay_ms(50);
+    nrf_gpio_pin_write(IMX586_RESET_PIN, 1);
 }
 
 void imx586_power_disable(void)
 {
     nrf_gpio_pin_write(IMX586_PWREN_PIN, 0);
+}
+
+void sensor_both_power_enable(void)
+{
+    nrf_gpio_pin_write(IMX586_PWREN_PIN, 0);
+    nrf_delay_ms(10);
+    nrf_gpio_pin_write(IMX586_PWREN_PIN, 1);
+    
+    nrf_gpio_pin_write(IMX576_PWREN_PIN, 0);
+    nrf_delay_ms(10);
+    nrf_gpio_pin_write(IMX576_PWREN_PIN, 1);
+    nrf_gpio_pin_write(IMX576_RESET_PIN, 0);
+    nrf_delay_ms(50);
+    nrf_gpio_pin_write(IMX576_RESET_PIN, 1);
 }
 
 void sensor_control_mipi_mux_to_imx214(void)

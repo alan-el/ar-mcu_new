@@ -17,12 +17,18 @@ typedef struct
 
 typedef enum
 {
+    /* Write CMD */
     CMD_OLED_SLEEP = 0,
     CMD_OLED_WAKE_UP,
     CMD_OLED_SET_BRIGHTNESS,
     CMD_OLED_POWEROFF_LT7911,
     CMD_OLED_REG_CFG,
     CMD_SENSOR_MIPI_MUX_SWITCH,
+    CMD_SET_REBOOTED_FALSE,
+    CMD_SET_READ_CMD_ID,
+    
+    /* Read CMD */
+    CMD_GET_REBOOTED_STATE,
 } cmd_type_t;
 
 void i2c_comm_slave_init(void);
